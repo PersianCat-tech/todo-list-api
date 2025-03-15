@@ -1,7 +1,9 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
+	"strings"
 	"time"
 	"todo_list/pkg/utils"
 
@@ -10,14 +12,19 @@ import (
 
 func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var code int
+		code := http.StatusOK
+
 		token := c.GetHeader("Authorization")
+		
+		token = strings.TrimPrefix(token, "Bearer ") // 去掉 "Bearer "，保留真正的 Token
+		
 		if token == "" {
 			code = http.StatusBadRequest
 		} else { //解析token
 			claim, err := utils.ParseToken(token)
 			if err != nil {
 				code = http.StatusForbidden //鉴权未通过
+				log.Fatal("JWT: ", err)
 			} else if time.Now().Unix() > claim.ExpiresAt {
 				code = http.StatusUnauthorized //401, Token无效
 			}
