@@ -23,6 +23,7 @@ func NewRouter() *gin.Engine {
 		authed.Use(middleware.JWT()) //中间件鉴权
 		{
 			authed.POST("task", api.CreateTask)
+			authed.GET("task/:id", api.ShowTask)
 		}
 	}
 
