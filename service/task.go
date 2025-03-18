@@ -16,6 +16,11 @@ type CreateTaskService struct {
 type ShowTaskService struct {
 }
 
+type ListTaskService struct {
+	PageNum  int `json:"page_num" form:"page_num"`
+	PageSize int `json:"page_size" gorm:"page_size"`
+}
+
 // 新增一条备忘录
 func (service *CreateTaskService) Create(id uint) serializer.Response {
 	var user model.User
@@ -62,4 +67,19 @@ func (service *ShowTaskService) Show(tid string) serializer.Response {
 		Status: code,
 		Data:   serializer.BuildTask(task),
 	}
+}
+
+// 列表返回所有备忘录
+func (service *ListTaskService) List(uid uint) serializer.Response {
+	var tasks []model.Task
+	count := 0
+
+	if service.PageSize == 0 { //若传过来的pageSize为0的话，则默认为15
+		service.PageSize = 15
+	}
+
+	model.DB.Model(&model.Task{}).Preload("User").Where("uid=?", uid).Count(&count).
+		Limit(service.PageSize).Offset((service.PageNum - 1) * service.PageSize).Find(&tasks)
+
+	return serializer.BuildListResponse(serializer.BuildTasks(tasks), uint(count))
 }

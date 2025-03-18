@@ -16,7 +16,7 @@ func CreateTask(c *gin.Context) {
 	token := c.GetHeader("Authorization")
 	token = strings.TrimPrefix(token, "Bearer ")
 
-	claims, err := utils.ParseToken(token)
+	claim, err := utils.ParseToken(token)
 	if err != nil {
 		log.Fatal("CreateTask: ", err)
 	}
@@ -25,14 +25,14 @@ func CreateTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 	}
 
-	res := createTask.Create(claims.Id)
+	res := createTask.Create(claim.Id)
 	c.JSON(http.StatusOK, res)
 }
 
 func ShowTask(c *gin.Context) {
 	var showTask service.ShowTaskService
-	token := c.GetHeader("Authorization")
-	token = strings.TrimPrefix(token, "Bearer ")
+	// token := c.GetHeader("Authorization")
+	// token = strings.TrimPrefix(token, "Bearer ")
 
 	if err := c.ShouldBind(&showTask); err != nil {
 		logging.Error(err)
@@ -40,5 +40,26 @@ func ShowTask(c *gin.Context) {
 	}
 
 	res := showTask.Show(c.Param("id"))
+	c.JSON(http.StatusOK, res)
+}
+
+// 列表返回用户所有备忘录
+
+func ListTask(c *gin.Context) {
+	var listTask service.ListTaskService
+	token := c.GetHeader("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
+	claim, err := utils.ParseToken(token)
+
+	if err != nil {
+		log.Fatal("ListTask", err)
+	}
+
+	if err := c.ShouldBind(&listTask); err != nil {
+		logging.Error(err)
+		c.JSON(http.StatusBadRequest, err)
+	}
+
+	res := listTask.List(claim.Id)
 	c.JSON(http.StatusOK, res)
 }
