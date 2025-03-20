@@ -31,8 +31,6 @@ func CreateTask(c *gin.Context) {
 
 func ShowTask(c *gin.Context) {
 	var showTask service.ShowTaskService
-	// token := c.GetHeader("Authorization")
-	// token = strings.TrimPrefix(token, "Bearer ")
 
 	if err := c.ShouldBind(&showTask); err != nil {
 		logging.Error(err)
@@ -61,5 +59,17 @@ func ListTask(c *gin.Context) {
 	}
 
 	res := listTask.List(claim.Id)
+	c.JSON(http.StatusOK, res)
+}
+
+func UpdateTask(c *gin.Context) {
+	var updateTask service.UpdateTaskService
+
+	if err := c.ShouldBind(&updateTask); err != nil {
+		logging.Error(err)
+		c.JSON(http.StatusBadRequest, err)
+	}
+
+	res := updateTask.Update(c.Param("id"))
 	c.JSON(http.StatusOK, res)
 }
