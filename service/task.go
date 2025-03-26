@@ -34,6 +34,9 @@ type SearchTaskService struct {
 	PageSize int    `json:"page_size" gorm:"page_size"`
 }
 
+type DeleteTaskService struct {
+}
+
 // 新增一条备忘录
 func (service *CreateTaskService) Create(id uint) serializer.Response {
 	var user model.User
@@ -130,4 +133,21 @@ func (service *SearchTaskService) Search(uid uint) serializer.Response {
 		Count(&count).Limit(service.PageSize).Offset((service.PageNum - 1) * service.PageSize).Find(&tasks)
 
 	return serializer.BuildListResponse(serializer.BuildTasks(tasks), uint(count))
+}
+
+// 删除备忘录操作
+func (service *DeleteTaskService) Delete(tid string) serializer.Response {
+	var task model.Task
+	err := model.DB.Delete(&task, tid).Error
+	if err != nil {
+		return serializer.Response{
+			Status: http.StatusInternalServerError,
+			Msg:    "删除失败 ",
+		}
+	}
+
+	return serializer.Response{
+		Status: http.StatusOK,
+		Msg: "删除成功",
+	}
 }

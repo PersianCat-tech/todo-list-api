@@ -88,3 +88,15 @@ func SearchTask(c *gin.Context) {
 	res := searchTask.Search(claim.Id)
 	c.JSON(http.StatusOK, res)
 }
+
+func DeleteTask(c *gin.Context) {
+	var deleteTask service.DeleteTaskService
+
+	if err := c.ShouldBind(&deleteTask); err != nil {
+		logging.Error(err)
+		c.JSON(http.StatusBadRequest, err)
+	}
+
+	res := deleteTask.Delete(c.Param("id"))
+	c.JSON(http.StatusOK, res)
+}
