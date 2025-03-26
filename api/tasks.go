@@ -73,3 +73,18 @@ func UpdateTask(c *gin.Context) {
 	res := updateTask.Update(c.Param("id"))
 	c.JSON(http.StatusOK, res)
 }
+
+func SearchTask(c *gin.Context) {
+	var searchTask service.SearchTaskService
+	token := c.GetHeader("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
+	claim, _ := utils.ParseToken(token)
+
+	if err := c.ShouldBind(&searchTask); err != nil {
+		logging.Error(err)
+		c.JSON(http.StatusBadRequest, err)
+	}
+
+	res := searchTask.Search(claim.Id)
+	c.JSON(http.StatusOK, res)
+}
